@@ -16,17 +16,16 @@ class Graph
 		bool isNodeExist(std::string const &nodeName) const;
 		bool isValidNodeName(std::string const &node);
 		// 
-		void connect();
+		void selfConnect();
 	public:	
 		Graph(unsigned int verticesCount,std::string const &name="A");
 		Graph();
-		void toConnect(std::string first,std::string last);
-		void toDisconnect(std::string first,std::string last);
-		void addNode(std::string nodeName);
-		void deleteNode(std::string nodeName);
+		bool toConnect(std::string first,std::string last);
+		bool toDisconnect(std::string first,std::string last);
+		bool addNode(std::string nodeName);
+		bool deleteNode(std::string nodeName);
 		void printGraphMatrix() const;
-		
-
+		bool isEmpty() const;
 };
 
 

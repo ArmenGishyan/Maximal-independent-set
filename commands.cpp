@@ -23,75 +23,78 @@ Commands::Commands()
 void Commands::execute()
 {
     static int invalidCommandcount=0;
-    switch (findCommand(m_validcommand.getCommand()[0]))
+    try
     {
-        case -1:
-            {
-                std::cerr<<"ERROR \n Invalid command"<<std::endl;
-                invalidCommandcount++;
-                if(invalidCommandcount>5)
+        switch (findCommand(m_validcommand.getCommand().at(0)))
+        {
+            case -1:
                 {
-                    std::cerr<<"ERROR \n Please write valid commands\n";
-                    std::terminate();
+                    std::cerr<<"ERROR \n Invalid command"<<std::endl;
+                    invalidCommandcount++;
+                    if(invalidCommandcount>4)
+                    {
+                        std::cerr<<"ERROR \n Please write valid commands\n";
+                        std::terminate();
+                    }
+                    else
+                    {
+                        commandInput();
+                    }
                 }
-                else
+            case 0:
                 {
+                    create();
+                    invalidCommandcount=0; 
                     commandInput();
+                    break;
                 }
-            }
-        case 0:
-            {
-                create();
-                invalidCommandcount=0; 
-                commandInput();
-                break;
-            }
-        case 1:
-            {
-                //connect(v_str);
-                invalidCommandcount=0; break;
-            }
-        case 2:
-            {
-               // disconnect(v_str); 
-                invalidCommandcount=0; break;
-            }
-        case 3:
-            {
-                //_delete(v_str); 
-                invalidCommandcount=0;break;
-            }
-        case 4:
-            {
-               // add(v_str);
-                invalidCommandcount=0;break;
-            }
+            case 1:
+                {
+                    connect();
+                    invalidCommandcount=0; break;
+                }
+            case 2:
+                {
+                    disconnect(); 
+                    invalidCommandcount=0; break;
+                }
+            case 3:
+                {
+                    _delete(); 
+                    invalidCommandcount=0;break;
+                }
+            case 4:
+                {
+                    add();
+                    invalidCommandcount=0;break;
+                }
+            case 5:
+                {
+                    print();
+                    invalidCommandcount=0; break;
+                }
+            case 6:
+                {
+                    std::cout<<"Program successfully closed!\n";
+                    exit(0);
+                }
+        }
     }
-
+    catch(const std::out_of_range& oor)
+    {
+        commandInput();
+    }
 }
 void Commands::commandInput()
 {
-    static std::string token="";
-    static  char c_char=' ';
-    m_validcommand.clear();
-    
-    std::cout<<"Waiting command: > ";
-    
-    do
+    static std::string str="";
+    while(true)
     {
-        while(true)
-        {
-            std::cin.get(c_char);
-            if(c_char==' ' || std::cin.peek()==EOF) break;
-            token+=c_char;
-        }
-        m_validcommand.setToken(token);
-        token="";
+        std::cout<<"Waiting command > ";
+        getline(std::cin,str);
+        m_validcommand.setCommand(helper::split(str));
+        execute();
     }
-    while(std::cin.peek()!='\n');
-    std::cout<<std::endl;
-    execute();
-    
 }
 int Commands::findCommand(std::string const &str)
 {
@@ -117,12 +120,87 @@ void Commands::create()
         {
             Graph obj(helper::strToint(m_validcommand.getCommand()[1]));   
             m_graph=obj;
+            std::cout<<"Graph "<<m_validcommand.getCommand()[2]<<"  was successfully created!"<<std::endl;
         }
         else
         {
             Graph obj(helper::strToint(m_validcommand.getCommand()[1]),m_validcommand.getCommand()[2]);
             m_graph=obj;
             std::cout<<"Graph "<<m_validcommand.getCommand()[2]<<"  was successfully created!"<<std::endl;
+        }
+    }
+}
+void Commands::connect()
+{
+    if(!m_graph.isEmpty() && !m_validcommand.connect())
+    {
+        commandInput();
+    }
+    else
+    {
+        if
+        (
+            !m_graph.toConnect
+            (
+                m_validcommand.getCommand()[1],
+                m_validcommand.getCommand()[2] 
+            )
+        )
+        {
+            commandInput();
+        }
+    }
+}
+void Commands::print() 
+{
+    if(m_validcommand.print() && !m_graph.isEmpty())
+    {
+        m_graph.printGraphMatrix();
+    }
+    else
+    {
+        commandInput();
+    }
+}
+void Commands::disconnect()
+{
+    if(m_validcommand.disconnect() && !m_graph.isEmpty())
+    {
+        if(m_graph.toDisconnect(m_validcommand.getCommand()[1],m_validcommand.getCommand()[2]))
+        {
+            commandInput();
+        }
+    }
+    else
+    {
+        commandInput();
+    }
+}
+void Commands::_delete()
+{
+    if(!m_validcommand._delete() && !m_graph.isEmpty())
+    {
+        commandInput();
+    }
+    else
+    {
+        if(!m_graph.deleteNode(m_validcommand.getCommand()[1]))
+        {
+            commandInput();
+        }
+    }
+}
+void Commands::add()
+{
+    if(!m_validcommand.addNode() && !m_graph.isEmpty())
+    {
+        commandInput();
+    }
+    else
+    {
+        if(!m_graph.addNode(m_validcommand.getCommand()[1]))
+        {
+            commandInput();
         }
     }
 }

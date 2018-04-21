@@ -9,7 +9,10 @@ std::vector<std::string> helper::split(std::string const & s_str)
     while(!s_stream.eof())
     {
         getline(s_stream,str_temp,' ');
-        vec.push_back(str_temp);
+        if(str_temp.size()!=0)
+        {
+            vec.push_back(str_temp);
+        }
     }
     return vec;
 }

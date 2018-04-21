@@ -26,19 +26,21 @@ Graph::Graph(unsigned int verticesCount,std::string const &name):m_GraphMatrix(v
 		m_map.insert(m_map.begin(),mapType(m_GraphMatrix[0][i],i));
 	}
 
-	connect();
+	selfConnect();
 }
 Graph::Graph(){}
-void Graph::toConnect(std::string first,std::string last)
+bool Graph::toConnect(std::string first,std::string last)
 {
 	if(isNodeExist(first) && isNodeExist(last))
 	{
 		m_GraphMatrix[m_map[first]][m_map[last]]="1";
+        std::cout<<"Node "<<first<<" and "<<last<<" is successfully connected!"<<std::endl;
+		return true;
 	}
 	else
 	{
 		std::cerr<<"ERROR: \n Invlid node name!\n";
-		std::terminate();
+		return false;
 	}
 }
 void Graph::printGraphMatrix() const 
@@ -53,25 +55,28 @@ void Graph::printGraphMatrix() const
 			std::cout<<m_GraphMatrix[i][j]<<",  ";
 		}
 	}
+	std::cout<<std::endl;
 }
-void Graph::toDisconnect(std::string first,std::string last) 
+bool Graph::toDisconnect(std::string first,std::string last) 
 {
 	if(isNodeExist(first) && isNodeExist(last))
 	{
 		m_GraphMatrix[m_map[first]][m_map[last]]="0";
+		std::cout<<"Node "<<first<<" and "<<last<<" is successfully disconnected"<<std::endl;
+		return true;
 	}
 	else
 	{
 		std::cerr<<"ERROR: \n Invlid node name!\n";
-		std::terminate();
+		return false;
 	}
 }
-void Graph::addNode(std::string nodeName)
+bool Graph::addNode(std::string nodeName)
 {
 	if(isNodeExist(nodeName))
 	{
 		std::cerr<<"ERROR \n Node already exist!\n";
-		std::terminate();
+		return false;
 	}
 	std::deque<std::string> nodeInsert(m_GraphMatrix.size()+1,"0");
 
@@ -86,8 +91,10 @@ void Graph::addNode(std::string nodeName)
 
 	m_map.insert(m_map.end(),mapType(nodeName,m_map.size()+1));
 	m_GraphMatrix[m_map[nodeName]][m_map[nodeName]]="1";
+
+	return true;
 }
-void Graph::deleteNode(std::string nodeName)
+bool Graph::deleteNode(std::string nodeName)
 {
 	if(isNodeExist(nodeName))
 	{
@@ -104,11 +111,13 @@ void Graph::deleteNode(std::string nodeName)
 			itToelements->erase(itToelements->begin()+m_map[nodeName]);
 			itToelements++;
 		}
+		m_map.erase(m_map.find(nodeName));
+		return true;
 	}
 	else
 	{
 		std::cerr<<"ERROR: \n Invlid node name!\n";
-		std::terminate();
+		return false;
 	}
 
 }
@@ -120,10 +129,22 @@ bool Graph::isValidNodeName(std::string const &nodeName)
 {
 	return (nodeName.size()<4);
 }
-void Graph::connect()
+void Graph::selfConnect()
 {
 	for(int i=1;i<m_GraphMatrix.size();++i)
 	{
 		m_GraphMatrix[i][i]="1";
+	}
+}
+bool Graph::isEmpty() const 
+{
+	if(m_map.empty())
+	{
+		std::cerr<<"Graph is empty"<<std::endl;
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }

@@ -2,15 +2,7 @@
 
 CommandValidation::CommandValidation()
 {
-    m_command.reserve(4);
-}
-
-void CommandValidation::setToken(std::string s_str)
-{
-    if(s_str.size()!=0)
-    {
-        m_command.push_back(s_str);
-    }
+    
 }
 
 bool CommandValidation::create() const
@@ -53,4 +45,57 @@ std::vector<std::string> CommandValidation::getCommand() const
 void CommandValidation::clear()
 {
     m_command.clear();
+}
+bool CommandValidation::connect() const
+{
+    if(m_command.size()!=3)
+    {
+        std::cerr<<"Invalid argument to connect"<<std::endl;
+        return false;
+    }
+    return true;
+    
+}
+void CommandValidation::setCommand(std::vector<std::string> const &v_str)
+{
+    m_command=v_str;
+}
+bool CommandValidation::print() const
+{
+    if(m_command.size()>1)
+    {
+        std::cerr<<"print is without arguments!\n";
+        return false;
+    }
+    return true;
+}
+bool CommandValidation::disconnect() const
+{
+    if(m_command.size()!=3 )
+    {
+        std::cerr<<"ERROR \n Invalid disconnect argument!\n";
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+bool CommandValidation::addNode() const
+{
+    if(m_command.size()!=2)
+    {
+        std::cerr<<"invalid add argument\n";
+        return false;
+    }
+    return true;
+}
+bool CommandValidation::_delete() const
+{
+    if(m_command.size()!=2)
+    {
+        std::cerr<<"delete must be one argument!\n";
+        return false;
+    }
+    return true;
 }
