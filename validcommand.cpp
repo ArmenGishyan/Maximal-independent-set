@@ -99,3 +99,12 @@ bool CommandValidation::_delete() const
     }
     return true;
 }
+bool CommandValidation::MISet() const
+{
+    if(m_command.size()>1)
+    {
+        std::cerr<<"MISet with out argument\n";
+        return false;
+    }
+    return true;
+}

@@ -15,6 +15,7 @@ class CommandValidation
         bool connect() const;
         bool disconnect() const;
         bool addNode() const;
+        bool MISet() const;
         bool print() const;
         bool _delete() const;
         void clear();

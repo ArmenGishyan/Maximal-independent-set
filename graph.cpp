@@ -26,6 +26,7 @@ Graph::Graph(unsigned int verticesCount,std::string const &name):m_GraphMatrix(v
 		m_map.insert(m_map.begin(),mapType(m_GraphMatrix[0][i],i));
 	}
 
+	m_minConnectedNode.reserve(verticesCount);
 	selfConnect();
 }
 Graph::Graph(){}
@@ -34,6 +35,7 @@ bool Graph::toConnect(std::string first,std::string last)
 	if(isNodeExist(first) && isNodeExist(last))
 	{
 		m_GraphMatrix[m_map[first]][m_map[last]]="1";
+		m_GraphMatrix[m_map[last]][m_map[first]]="1";
         std::cout<<"Node "<<first<<" and "<<last<<" is successfully connected!"<<std::endl;
 		return true;
 	}
@@ -62,6 +64,7 @@ bool Graph::toDisconnect(std::string first,std::string last)
 	if(isNodeExist(first) && isNodeExist(last))
 	{
 		m_GraphMatrix[m_map[first]][m_map[last]]="0";
+		m_GraphMatrix[m_map[last]][m_map[first]]="0";
 		std::cout<<"Node "<<first<<" and "<<last<<" is successfully disconnected"<<std::endl;
 		return true;
 	}
@@ -89,8 +92,8 @@ bool Graph::addNode(std::string nodeName)
 	m_GraphMatrix[0].push_back(nodeName);
 	m_GraphMatrix[m_GraphMatrix.size()-1][0]=nodeName;
 
-	m_map.insert(m_map.end(),mapType(nodeName,m_map.size()+1));
-	m_GraphMatrix[m_map[nodeName]][m_map[nodeName]]="1";
+	m_map.insert(m_map.end(),mapType(nodeName,(--m_map.end())->second+1));
+	m_GraphMatrix[m_map[nodeName]][m_map[nodeName]]="~";
 
 	return true;
 }
@@ -111,7 +114,16 @@ bool Graph::deleteNode(std::string nodeName)
 			itToelements->erase(itToelements->begin()+m_map[nodeName]);
 			itToelements++;
 		}
-		m_map.erase(m_map.find(nodeName));
+		auto itTomap1=m_map.find(nodeName);
+		
+		auto itTomap2 =++itTomap1;
+		--itTomap1;
+		while(itTomap2!=m_map.end())
+		{
+			itTomap2->second-=1;
+			itTomap2++;
+		}
+		m_map.erase(itTomap1);
 		return true;
 	}
 	else
@@ -133,7 +145,7 @@ void Graph::selfConnect()
 {
 	for(int i=1;i<m_GraphMatrix.size();++i)
 	{
-		m_GraphMatrix[i][i]="1";
+		m_GraphMatrix[i][i]="~";
 	}
 }
 bool Graph::isEmpty() const 
@@ -147,4 +159,101 @@ bool Graph::isEmpty() const
 	{
 		return false;
 	}
+}
+
+///////////////////////////////////////////////////////
+bool Graph::isComplete() const
+{
+	int j=0;
+	for(int i=0;i<m_GraphMatrix.size();++i)
+	{
+		for(j=i;j<m_GraphMatrix[i].size();++j)
+		{
+			if(m_GraphMatrix[i][j]=="0")
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+//detect smallest coonected compontnts and push it in m_minConnectedNode voector 
+void Graph::SCCProblem()
+{
+	m_minConnectedNode.clear();
+
+	int temp_min = std::count(m_GraphMatrix[1].begin(),m_GraphMatrix[1].end(),"1");
+	m_minConnectedNode.push_back(m_GraphMatrix[0][1]);
+	int size=m_GraphMatrix.size();
+	int count=0;
+	for(int i=2;i<size;++i)
+	{
+		count = std::count(m_GraphMatrix[i].begin(),m_GraphMatrix[i].end(),"1");
+		if(temp_min>count)
+		{
+			temp_min=count;
+			m_minConnectedNode.clear();
+			m_minConnectedNode.push_back(m_GraphMatrix[i][0]);
+		}
+		else
+		{
+			if(temp_min==count)
+			{
+				m_minConnectedNode.push_back(m_GraphMatrix[i][0]);
+			}
+		}
+	}
+}
+
+bool Graph::MaxIndependentset()
+{
+	if(!isComplete())
+	{
+		std::cout<<"Max Independent set = "<<SolveProblem(*this)<<"\n"; 
+		return true;
+	}
+	std::cout<<"Graph is Complete\n";
+	return false;
+	
+	//deleteNode("A1");
+	//removeAdjacentes("A1");
+
+}
+int Graph::SolveProblem(Graph obj)
+{
+	std::priority_queue<int> q_max;
+	if(obj.isComplete())
+	{
+		return 1;
+	}
+	if(obj.isEmpty())
+	{
+		return 0;
+	}
+	obj.SCCProblem();
+	for(int i=0;i<obj.m_minConnectedNode.size();++i)
+	{
+		q_max.push(SolveProblem(obj.removeAdjacentes(obj.m_minConnectedNode[i])));
+	}
+	return 1+q_max.top();
+}
+Graph Graph::removeAdjacentes(std::string const &nodeName)
+{
+	Graph obj=*this;
+	int it=obj.m_map.find(nodeName)->second;
+	for(int i=1;i<obj.m_GraphMatrix.size();++i)
+	{
+		if(obj.m_GraphMatrix[it][i]=="1")
+		{
+			obj.deleteNode(m_GraphMatrix[0][i]);
+			--i;
+			if(i<it)
+			{
+				--it;
+			}
+		}
+	}
+	obj.deleteNode(nodeName);
+	return obj;
 }

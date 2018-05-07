@@ -34,3 +34,7 @@ int helper::strToint(std::string str)
     strstream>>x;
     return x;
 }
+void helper::decrement(std::pair<std::string,int> &item)
+{
+    item.second--;
+}

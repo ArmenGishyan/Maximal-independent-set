@@ -75,6 +75,11 @@ void Commands::execute()
                 }
             case 6:
                 {
+                    MISet();
+                    invalidCommandcount=0;break;
+                }    
+            case 7:
+                {
                     std::cout<<"Program successfully closed!\n";
                     exit(0);
                 }
@@ -120,7 +125,7 @@ void Commands::create()
         {
             Graph obj(helper::strToint(m_validcommand.getCommand()[1]));   
             m_graph=obj;
-            std::cout<<"Graph "<<m_validcommand.getCommand()[2]<<"  was successfully created!"<<std::endl;
+            std::cout<<"Graph "<<"A"<<"  was successfully created!"<<std::endl;
         }
         else
         {
@@ -203,4 +208,13 @@ void Commands::add()
             commandInput();
         }
     }
+}
+void Commands::MISet() 
+{
+    if(!m_validcommand.MISet() ||  !m_graph.MaxIndependentset())
+    {
+        commandInput();
+    }
+    
+   
 }

@@ -24,6 +24,7 @@ class Commands
         void disconnect();
         void create();
         void print();
+        void MISet();
         int findCommand(std::string const &str);
         void execute();
     public:
