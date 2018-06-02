@@ -2,11 +2,14 @@
 #include <vector>
 #include <string>
 #include "helperfunctions.h"
+#include <fstream>
+#include <algorithm>
 
 class CommandValidation
 {
     private:
         std::vector<std::string> m_command;
+        std::fstream m_history;
     public:
         CommandValidation();
         void setCommand(std::vector<std::string> const  &v_str);
@@ -19,4 +22,5 @@ class CommandValidation
         bool print() const;
         bool _delete() const;
         void clear();
+        void writeHistory(std::string const & word);
 };

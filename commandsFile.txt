@@ -1,5 +1,5 @@
 create
-connect
+c
 disconnect
 delete
 add

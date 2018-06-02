@@ -3,7 +3,7 @@
 Commands::Commands()
 {
     std::fstream file;
-    file.open("commandsFile.txt",std::ios::in);
+    file.open("commandsFile.txt",std::ios::in | std::ios::out);
     if(!file.is_open())
     {
         std::cerr<<"ERROR \n File is not open!\n";
@@ -93,10 +93,13 @@ void Commands::execute()
 void Commands::commandInput()
 {
     static std::string str="";
+    char chr=' ';
     while(true)
     {
         std::cout<<"Waiting command > ";
+    
         getline(std::cin,str);
+       
         m_validcommand.setCommand(helper::split(str));
         execute();
     }

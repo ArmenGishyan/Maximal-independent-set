@@ -1,8 +1,11 @@
 #include "validcommand.h"
 
-CommandValidation::CommandValidation()
+CommandValidation::CommandValidation():m_history("history.txt",std::ios::out)
 {
-    
+    if(!m_history.is_open())
+    {
+        std::cerr<<"file is not open"<<std::endl;
+    }
 }
 
 bool CommandValidation::create() const
@@ -59,6 +62,12 @@ bool CommandValidation::connect() const
 void CommandValidation::setCommand(std::vector<std::string> const &v_str)
 {
     m_command=v_str;
+    int size=v_str.size();
+    for(int i=0;i<size;++i)
+    {
+        m_history<<v_str[i]<<" ";
+    }
+    m_history<<"\n";
 }
 bool CommandValidation::print() const
 {
@@ -107,4 +116,8 @@ bool CommandValidation::MISet() const
         return false;
     }
     return true;
+}
+void CommandValidation::writeHistory(std::string const &word)
+{
+    m_history<<word<<" ";
 }

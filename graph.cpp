@@ -1,5 +1,7 @@
 #include "graph.h"
-typedef std::pair<std::string,int> mapType;
+#include "simplestruct.h"
+#include <unordered_set>
+#include <functional>
 
 Graph::Graph(unsigned int verticesCount,std::string const &name):m_GraphMatrix(verticesCount+1)
 {
@@ -129,6 +131,7 @@ bool Graph::deleteNode(std::string nodeName)
 	else
 	{
 		std::cerr<<"ERROR: \n Invlid node name!\n";
+		exit(0);
 		return false;
 	}
 
@@ -208,9 +211,13 @@ void Graph::SCCProblem()
 
 bool Graph::MaxIndependentset()
 {
+	m_Mislist.clear();
 	if(!isComplete())
 	{
 		std::cout<<"Max Independent set = "<<SolveProblem(*this)<<"\n"; 
+		std::cout<<"List of MIS ";
+		std::cout<<std::for_each(m_Mislist.begin(),m_Mislist.end(),[](std::string str){std::cout<<str<<" ,";});
+		std::cout<<"\n";
 		return true;
 	}
 	std::cout<<"Graph is Complete\n";
@@ -222,31 +229,39 @@ bool Graph::MaxIndependentset()
 }
 int Graph::SolveProblem(Graph obj)
 {
-	std::priority_queue<int> q_max;
+	std::unordered_set<Wraper,std::greater<Wraper> > max_set;
 	if(obj.isComplete())
 	{
+		m_Mislist.push_back(m_GraphMatrix[0][1]);
 		return 1;
 	}
 	if(obj.isEmpty())
 	{
 		return 0;
 	}
+	int count = isFullUnconnected();
+	if(count)
+	{
+		return count;
+	}
 	obj.SCCProblem();
 	for(int i=0;i<obj.m_minConnectedNode.size();++i)
 	{
-		q_max.push(SolveProblem(obj.removeAdjacentes(obj.m_minConnectedNode[i])));
+		q_max.insert(P_Type(SolveProblem(obj.removeAdjacentes(obj.m_minConnectedNode[i])),obj.m_minConnectedNode[i]));
 	}
-	return 1+q_max.top();
+	m_Mislist.push_back(q_max.begin()->second);
+	return 1+q_max.begin()->first;
 }
 Graph Graph::removeAdjacentes(std::string const &nodeName)
 {
 	Graph obj=*this;
 	int it=obj.m_map.find(nodeName)->second;
+	
 	for(int i=1;i<obj.m_GraphMatrix.size();++i)
 	{
 		if(obj.m_GraphMatrix[it][i]=="1")
 		{
-			obj.deleteNode(m_GraphMatrix[0][i]);
+			obj.deleteNode(obj.m_GraphMatrix[0].at(i));
 			--i;
 			if(i<it)
 			{
@@ -256,4 +271,24 @@ Graph Graph::removeAdjacentes(std::string const &nodeName)
 	}
 	obj.deleteNode(nodeName);
 	return obj;
+}
+
+int Graph::isFullUnconnected() 
+{
+	int j=0;
+	for(int i=0;i<m_GraphMatrix.size();++i)
+	{
+		for(j=i;j<m_GraphMatrix[i].size();++j)
+		{
+			if(m_GraphMatrix[i][j]=="1")
+			{
+				return 0;
+			}
+		}
+	}
+	for(int i=1;i<m_GraphMatrix[0].size();++i)
+	{
+		m_Mislist.push_back(m_GraphMatrix[0][i]);
+	}
+	return m_map.size();
 }
