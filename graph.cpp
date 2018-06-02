@@ -1,7 +1,7 @@
 #include "graph.h"
-#include "simplestruct.h"
-#include <unordered_set>
+#include <set>
 #include <functional>
+#include <queue>
 
 Graph::Graph(unsigned int verticesCount,std::string const &name):m_GraphMatrix(verticesCount+1)
 {
@@ -211,46 +211,47 @@ void Graph::SCCProblem()
 
 bool Graph::MaxIndependentset()
 {
-	m_Mislist.clear();
+	std::vector<std::string> str;
+	Wraper wrap_obj;
 	if(!isComplete())
 	{
-		std::cout<<"Max Independent set = "<<SolveProblem(*this)<<"\n"; 
+		wrap_obj = SolveProblem(*this);
+		std::cout<<"Max Independent set = "<<wrap_obj.getCount()<<"\n"; 
+		str = wrap_obj.getStr();
 		std::cout<<"List of MIS ";
-		std::cout<<std::for_each(m_Mislist.begin(),m_Mislist.end(),[](std::string str){std::cout<<str<<" ,";});
+		std::cout<<std::for_each(str.begin(),str.end(),[](std::string str){std::cout<<str<<" ,";});
 		std::cout<<"\n";
 		return true;
 	}
 	std::cout<<"Graph is Complete\n";
 	return false;
-	
-	//deleteNode("A1");
-	//removeAdjacentes("A1");
-
 }
-int Graph::SolveProblem(Graph obj)
+Wraper Graph::SolveProblem(Graph obj)
 {
-	std::unordered_set<Wraper,std::greater<Wraper> > max_set;
+	std::priority_queue<Wraper > max_queue;
+	Wraper wrap_obj;
+	
 	if(obj.isComplete())
 	{
-		m_Mislist.push_back(m_GraphMatrix[0][1]);
-		return 1;
+		wrap_obj.addCount();
+		wrap_obj.addStr(obj.m_GraphMatrix[0][1]);
+		return wrap_obj;
 	}
 	if(obj.isEmpty())
 	{
-		return 0;
+		return wrap_obj;
 	}
-	int count = isFullUnconnected();
-	if(count)
-	{
-		return count;
-	}
+	
 	obj.SCCProblem();
 	for(int i=0;i<obj.m_minConnectedNode.size();++i)
 	{
-		q_max.insert(P_Type(SolveProblem(obj.removeAdjacentes(obj.m_minConnectedNode[i])),obj.m_minConnectedNode[i]));
+		wrap_obj = SolveProblem(obj.removeAdjacentes(obj.m_minConnectedNode[i]));
+		wrap_obj.addStr(obj.m_minConnectedNode[i]);
+		max_queue.push(wrap_obj); 
 	}
-	m_Mislist.push_back(q_max.begin()->second);
-	return 1+q_max.begin()->first;
+	wrap_obj = max_queue.top();
+	wrap_obj.addCount();
+	return wrap_obj;
 }
 Graph Graph::removeAdjacentes(std::string const &nodeName)
 {
@@ -271,24 +272,4 @@ Graph Graph::removeAdjacentes(std::string const &nodeName)
 	}
 	obj.deleteNode(nodeName);
 	return obj;
-}
-
-int Graph::isFullUnconnected() 
-{
-	int j=0;
-	for(int i=0;i<m_GraphMatrix.size();++i)
-	{
-		for(j=i;j<m_GraphMatrix[i].size();++j)
-		{
-			if(m_GraphMatrix[i][j]=="1")
-			{
-				return 0;
-			}
-		}
-	}
-	for(int i=1;i<m_GraphMatrix[0].size();++i)
-	{
-		m_Mislist.push_back(m_GraphMatrix[0][i]);
-	}
-	return m_map.size();
 }

@@ -10,6 +10,7 @@
 #include "helperfunctions.h"
 #include <iterator>
 #include <stdlib.h>
+#include "simplestruct.h"
 
 typedef std::pair<std::string,int> mapType;
 typedef std::pair<int,std::string> P_Type;
@@ -19,7 +20,6 @@ class Graph
 	private:
 		std::deque<std::deque<std::string> > m_GraphMatrix;
 		std::vector<std::string> m_minConnectedNode; 
-		std::vector<std::string> m_Mislist;
 		// translator vertices name to it index
 		std::map<std::string,int> m_map;
 		bool isNodeExist(std::string const &nodeName) const;
@@ -40,10 +40,9 @@ class Graph
 		bool isComplete() const;
 		void SCCProblem();
 		bool MaxIndependentset();
-		int SolveProblem(Graph obj);
+		Wraper SolveProblem(Graph obj);
 
 		Graph removeAdjacentes(std::string const &nodeName);
-		int isFullUnconnected();
 };
 
 

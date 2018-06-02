@@ -17,6 +17,10 @@ struct  Wraper
         {
             m_count=val;
         }
+        void addCount()
+        {
+            ++m_count;
+        }
         std::vector<std::string> getStr() const
         {
             return m_str;
@@ -25,22 +29,34 @@ struct  Wraper
         {
             m_str.push_back(str);
         }
-        bool operator > (Wraper const &obj)
+        Wraper(Wraper const& obj)
         {
-            return m_count > obj.m_count;
+            m_count = obj.m_count;
+            m_str = obj.m_str;
         }
-        bool operator < (Wraper const &obj)
+        bool operator > (Wraper const obj) const
+        {
+            return (m_count > obj.m_count);
+        }
+        bool operator < (Wraper const obj) const
         {
             return m_count < obj.m_count;
         }
-        bool operator != (Wraper const &obj)
+        bool operator != (Wraper const obj) const
         {
             return m_count != obj.m_count;
         }
-        bool operator == (Wraper const &obj)
+        bool operator == (Wraper const obj) const
         {
             return m_count == obj.m_count;
         }
+        Wraper& operator = (Wraper const obj) 
+        {
+            m_count = obj.m_count;
+            m_str = obj.m_str;
+            return *this;
+        }
+
        
     
 };
