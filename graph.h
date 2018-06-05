@@ -10,6 +10,7 @@
 #include "helperfunctions.h"
 #include <iterator>
 #include <stdlib.h>
+#include <list>
 #include "simplestruct.h"
 
 typedef std::pair<std::string,int> mapType;
@@ -18,14 +19,13 @@ typedef std::pair<int,std::string> P_Type;
 class Graph
 {
 	private:
-		std::deque<std::deque<std::string> > m_GraphMatrix;
+		std::list<std::deque<std::string> > m_AdjacencyList;
 		std::vector<std::string> m_minConnectedNode; 
 		// translator vertices name to it index
-		std::map<std::string,int> m_map;
-		bool isNodeExist(std::string const &nodeName) const;
+		std::list<std::deque<std::string> > isNodeExist(std::string const &nodeName) const;
 		bool isValidNodeName(std::string const &node);
 		// 
-		void selfConnect();
+		
 	public:	
 		Graph(unsigned int verticesCount,std::string const &name="A");
 		Graph();

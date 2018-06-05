@@ -3,42 +3,19 @@
 #include <functional>
 #include <queue>
 
-Graph::Graph(unsigned int verticesCount,std::string const &name):m_GraphMatrix(verticesCount+1)
-{
-	verticesCount+=1;
-	for(int i=0;i<m_GraphMatrix.size();++i)
-	{
-		m_GraphMatrix[i].resize(verticesCount);
-		m_GraphMatrix[0][i]=name+std::to_string(i-1);
-		m_GraphMatrix[i][0]=name+std::to_string(i-1);
-	}
-	m_GraphMatrix[0][0]="vertices";
+Graph::Graph(unsigned int verticesCount,std::string const &name){}
 
-	int j=1;
-	for(int i=1;i<m_GraphMatrix.size();++i)
-	{
-		for(j=1;j<m_GraphMatrix[i].size();++j)
-		{
-			m_GraphMatrix[i][j]="0";
-		}
-	}
-
-	for(int i=1;i<m_GraphMatrix.size();++i)
-	{
-		m_map.insert(m_map.begin(),mapType(m_GraphMatrix[0][i],i));
-	}
-
-	m_minConnectedNode.reserve(verticesCount);
-	selfConnect();
+	
 }
 Graph::Graph(){}
 bool Graph::toConnect(std::string first,std::string last)
 {
-	if(isNodeExist(first) && isNodeExist(last))
+	auto  itFirst = isNodeExist(first);
+	auto  itLast  = isNodeExist(last);
+	if((itFirst != m_AdjacencyList.end()) && (itLast != m_AdjacencyList.end()))
 	{
-		m_GraphMatrix[m_map[first]][m_map[last]]="1";
-		m_GraphMatrix[m_map[last]][m_map[first]]="1";
-        std::cout<<"Node "<<first<<" and "<<last<<" is successfully connected!"<<std::endl;
+		itFirst->push_back(last);
+		itLast->push_back(first);
 		return true;
 	}
 	else
@@ -49,17 +26,17 @@ bool Graph::toConnect(std::string first,std::string last)
 }
 void Graph::printGraphMatrix() const 
 {
-	int j=0;
-	for(int i=0;i<m_GraphMatrix.size();i++)
+	auto it = m_AdjacencyList.begin();
+	auto itToElement = m_AdjacencyList.begin()->begin();
+	while(it != m_AdjacencyList.end())
 	{
-		std::cout<<"\n";
-		if(i!=0) std::cout<<"\t";
-		for(j=0;j<m_GraphMatrix[i].size();j++)
+		itToElement = it->begin();
+		while(itToElement != it->end())
 		{
-			std::cout<<m_GraphMatrix[i][j]<<",  ";
+			std::cout<<*itToElement<<", ";
 		}
+		std::cout<<"\n";
 	}
-	std::cout<<std::endl;
 }
 bool Graph::toDisconnect(std::string first,std::string last) 
 {
@@ -83,49 +60,19 @@ bool Graph::addNode(std::string nodeName)
 		std::cerr<<"ERROR \n Node already exist!\n";
 		return false;
 	}
-	std::deque<std::string> nodeInsert(m_GraphMatrix.size()+1,"0");
+	std::vector<std::string> newNode;
+	newNode.push_back(nodeName);
 
-	for(int i=1;i<m_GraphMatrix.size();++i)
-	{
-		m_GraphMatrix[i].push_back("0");
-	}
-	m_GraphMatrix.push_back(nodeInsert);
+	m_AdjacencyList.push_back(newNode);
 	
-	m_GraphMatrix[0].push_back(nodeName);
-	m_GraphMatrix[m_GraphMatrix.size()-1][0]=nodeName;
-
-	m_map.insert(m_map.end(),mapType(nodeName,(--m_map.end())->second+1));
-	m_GraphMatrix[m_map[nodeName]][m_map[nodeName]]="~";
-
 	return true;
 }
 bool Graph::deleteNode(std::string nodeName)
 {
-	if(isNodeExist(nodeName))
+	auto it = isNodeExist(nodeName);
+	if(it != m_AdjacencyList.end())
 	{
-		auto it= m_GraphMatrix.begin();
-		while(it->begin()[0]!=nodeName)
-		{
-			it++;
-		}
-
-		m_GraphMatrix.erase(it);
-		auto itToelements=m_GraphMatrix.begin();
-		while(itToelements!=m_GraphMatrix.end())
-		{
-			itToelements->erase(itToelements->begin()+m_map[nodeName]);
-			itToelements++;
-		}
-		auto itTomap1=m_map.find(nodeName);
-		
-		auto itTomap2 =++itTomap1;
-		--itTomap1;
-		while(itTomap2!=m_map.end())
-		{
-			itTomap2->second-=1;
-			itTomap2++;
-		}
-		m_map.erase(itTomap1);
+		m_AdjacencyList.erase(it);
 		return true;
 	}
 	else
@@ -136,24 +83,23 @@ bool Graph::deleteNode(std::string nodeName)
 	}
 
 }
-bool Graph::isNodeExist(std::string const &nodeName)const
+std::list<std::vector<std::string> >::iterator Graph::isNodeExist(std::string const &nodeName)const
 {
-	return (m_map.find(nodeName)!=m_map.end());
+	auto it = m_AdjacencyList.begin();
+	while(it != m_AdjacencyList.end())
+	{
+		if(*(it->begin()) == nodeName)
+			return it;
+	} 
+	return it;
 }
 bool Graph::isValidNodeName(std::string const &nodeName)
 {
 	return (nodeName.size()<4);
 }
-void Graph::selfConnect()
-{
-	for(int i=1;i<m_GraphMatrix.size();++i)
-	{
-		m_GraphMatrix[i][i]="~";
-	}
-}
 bool Graph::isEmpty() const 
 {
-	if(m_map.empty())
+	if(m_AdjacencyList.empty())
 	{
 		std::cerr<<"Graph is empty"<<std::endl;
 		return true;
